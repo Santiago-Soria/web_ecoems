@@ -1,14 +1,24 @@
-# 1. Usamos una imagen base ligera de Java 17
-FROM eclipse-temurin:17-jdk-alpine
+# --- ETAPA 1: CONSTRUCCIÓN (BUILD) ---
+# Usamos una imagen de Maven para compilar el proyecto
+FROM maven:3.9-eclipse-temurin-17-alpine AS build
+WORKDIR /app
 
-# 2. Creamos un punto de montaje temporal (opcional pero recomendado por Spring)
+# Copiamos todo el código fuente del proyecto al contenedor
+COPY . .
+
+# Ejecutamos el comando para generar el .jar (saltando los tests para ir más rápido)
+RUN mvn clean package -DskipTests
+
+# --- ETAPA 2: EJECUCIÓN (RUN) ---
+# Usamos la imagen ligera para correr la app (igual que antes)
+FROM eclipse-temurin:17-jdk-alpine
 VOLUME /tmp
 
-# 3. Copiamos el archivo .jar generado por Maven al contenedor y lo renombramos
-COPY target/*.jar app.jar
+# En lugar de copiar desde tu carpeta local, copiamos desde la "Etapa 1"
+COPY --from=build /app/target/*.jar app.jar
 
-# 4. Exponemos el puerto donde corre tu app (según tu application.properties)
+# Exponemos el puerto
 EXPOSE 8090
 
-# 5. Comando para ejecutar la aplicación cuando arranque el contenedor
+# Comando de arranque
 ENTRYPOINT ["java","-jar","/app.jar"]
