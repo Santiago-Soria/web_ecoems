@@ -2,6 +2,7 @@ package escom.ipn.mx.ecoems.domain.repository;
 
 import escom.ipn.mx.ecoems.domain.entity.ResultadoExamen;
 import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Optional;
 import java.util.List;
 
 public interface ResultadoExamenRepository extends JpaRepository<ResultadoExamen, Long> {
