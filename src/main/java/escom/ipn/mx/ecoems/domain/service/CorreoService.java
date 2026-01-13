@@ -22,6 +22,9 @@ public class CorreoService {
 
     // 1. Método simple (solo texto)
     public void enviarCorreoSimple(String destinatario, String asunto, String contenido) {
+        // Log de inicio para saber que el hilo arrancó
+        System.out.println(">>> Intentando enviar correo a: " + destinatario);
+        
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
@@ -29,14 +32,20 @@ public class CorreoService {
             helper.setFrom(remitente);
             helper.setTo(destinatario);
             helper.setSubject(asunto);
-            helper.setText(contenido, true); // true = acepta HTML básico
+            helper.setText(contenido, true);
 
             mailSender.send(message);
-            System.out.println("Correo enviado a: " + destinatario);
+            System.out.println("Correo enviado exitosamente a: " + destinatario);
 
         } catch (MessagingException e) {
+            // Error al construir el mensaje (dirección mal formada, encoding, etc.)
+            System.err.println("Error de Mensajería: " + e.getMessage());
             e.printStackTrace();
-            System.err.println("Error al enviar correo: " + e.getMessage());
+        } catch (Exception e) {
+            // Error GENERAL (Autenticación fallida, timeout, bloqueo de Google, etc.)
+            // Esto capturará MailAuthenticationException que antes se escapaba
+            System.err.println("Error CRÍTICO al enviar correo: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
